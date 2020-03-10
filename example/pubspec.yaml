@@ -8,5 +8,7 @@ environment:
   sdk: ">=2.1.0 <3.0.0"
 
 dev_dependencies:
+  build_runner: ^1.8.0
+  json_serializable: ^3.2.5
   json_model:
     path: ../
