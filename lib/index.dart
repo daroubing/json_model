@@ -140,7 +140,7 @@ String getType(String key, Set<String> set, String current, bool noAutoImport) {
   current = current.toLowerCase();
 
   {
-    var listReg = RegExp(r"^List<\s*(.*)\s*>$");
+    var listReg = RegExp(r"^List<\s*(\w*)\s*>$");
     var m = listReg.firstMatch(key);
     if (m != null && m.groupCount == 1) {
       var type = m.group(1);
@@ -152,7 +152,7 @@ String getType(String key, Set<String> set, String current, bool noAutoImport) {
   }
 
   {
-    var mapReg = RegExp(r"Map<\s*(.*)\s*,\s*(.*)\s*>");
+    var mapReg = RegExp(r"Map<\s*(\w*)\s*,\s*(\w*)\s*>");
     var m = mapReg.firstMatch(key);
     if (m != null && m.groupCount == 2) {
       for (var type in [m.group(1), m.group(2)]) {
