@@ -138,6 +138,36 @@ class User {
 
 更完整的示例请移步[这里](https://github.com/flutterchina/json_model/tree/master/example) .
 
+
+
+#### 导入多个文件
+
+```json
+{
+  "@import":"test_dir/profile.dart",
+  "@import1":"test_dir/profile1.dart",
+	"@import2":"test_dir/profile2.dart",
+}
+```
+
+
+
+
+
+### @class
+
+自定义类名
+
+```json
+{
+	"@class":"CustomClassName"
+}
+```
+
+
+
+
+
 ##  命令参数
 
 默认的源json文件目录为根目录下名为 "json" 的目录；可以通过 `src` 参数自定义源json文件目录，例如:
