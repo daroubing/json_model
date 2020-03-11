@@ -184,6 +184,10 @@ pub run json_model src=json_files  dist=data # 输出目录为 lib/data
 
 > 注意，dist会默认已lib为根目录。
 
+
+
+
+
 ## 代码调用
 
 如果您正在开发一个工具，想在代码中使用json_model，此时便不能通过命令行来调用json_model，这是你可以通过代码调用：
@@ -191,7 +195,22 @@ pub run json_model src=json_files  dist=data # 输出目录为 lib/data
 ```dart
 import 'package:json_model/json_model.dart';
 void main() {
-  run(['src=jsons']);  //run方法为json_model暴露的方法；
+  run(['--src=jsons']);  //run方法为json_model暴露的方法；
+}
+```
+
+
+
+#### --noAutoImport 取消自动添加 import 内容
+
+默认对$user, \$[]user 添加 import 'user.dart'
+
+* 使用 ```--noAutoImport``` 参数取消此功能
+
+```Json
+{
+  "father":"$user", //可以通过"$"符号引用其它model类
+  "friends":"$[]user", // 可以通过"$[]"来引用数组,并添加user类
 }
 ```
 
