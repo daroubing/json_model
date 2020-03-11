@@ -1,4 +1,5 @@
 {
-  "no":"28838388383756",
-  "name":"xx bank"
+  "@class": "Card",
+   "String":"no",
+   "String":"name"
 }

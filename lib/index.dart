@@ -58,14 +58,18 @@ bool walk(String srcDir, String distDir, String tag, bool noAutoImport) {
       if (paths.last.toLowerCase() != "json" || name.startsWith("_")) return;
       if (name.startsWith("_")) return;
       //下面生成模板
-      var map = json.decode(file.readAsStringSync());
+
+
       //为了避免重复导入相同的包，我们用Set来保存生成的import语句。
       var set = new Set<String>();
 
       //从配置或文件名中生成类名
       String className = name[0].toUpperCase() + name.substring(1);
       StringBuffer attrs = new StringBuffer();
-      (map as Map<String, dynamic>).forEach((key, v) {
+
+      json.decode(file.readAsStringSync(), reviver:(k, v) {
+        if( k == null) return;
+        var key = k as String;
         if (key.startsWith("_")) return;
         if (key.startsWith("@")) {
           if (key.startsWith("@import")) {
@@ -124,7 +128,7 @@ String changeFirstChar(String str, [bool upper = true]) {
 }
 
 bool isBuiltInType(String type) {
-  return ['int', 'num', 'string', 'double', 'map', 'list'].contains(type);
+  return ['int', 'num', 'string', 'double', 'map', 'list', 'bool'].contains(type);
 }
 
 //将JSON类型转为对应的dart类型

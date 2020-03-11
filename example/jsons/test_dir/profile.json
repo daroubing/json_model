@@ -1,5 +1,5 @@
 {
-  "name":"wendux",
-  "age":20,
-  "male":true
+  "String":"name",
+  "num":"age",
+  "bool":"male"
 }
