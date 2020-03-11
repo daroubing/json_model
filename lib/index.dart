@@ -51,7 +51,7 @@ bool walk(String srcDir, String distDir, String tag ) {
         if(key.startsWith("_")) return ;
         if(key.startsWith("@")){
           if(key.startsWith("@import")){
-            set.add(key.substring(1)+" '$v'");
+            set.add("import '$v'");
             return;
           }
           attrs.write(key);
