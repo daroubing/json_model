@@ -54,12 +54,17 @@ bool walk(String srcDir, String distDir, String tag) {
       var map = json.decode(file.readAsStringSync());
       //为了避免重复导入相同的包，我们用Set来保存生成的import语句。
       var set = new Set<String>();
+      String classNameFromJson;
       StringBuffer attrs = new StringBuffer();
       (map as Map<String, dynamic>).forEach((key, v) {
         if (key.startsWith("_")) return;
         if (key.startsWith("@")) {
           if (key.startsWith("@import")) {
             set.add("import '$v'");
+            return;
+          }
+          else if(key.startsWith(RegExp("@class", caseSensitive: false))){
+            classNameFromJson = v;
             return;
           }
           attrs.write(key);
@@ -74,7 +79,12 @@ bool walk(String srcDir, String distDir, String tag) {
         }
         attrs.write("    ");
       });
-      String className = name[0].toUpperCase() + name.substring(1);
+
+      //从配置或文件名中生成类名
+      String className = classNameFromJson;
+      if(className == null || className.isEmpty) {
+        className = name[0].toUpperCase() + name.substring(1);
+      }
       var dist = format(tpl, [
         name,
         className,
