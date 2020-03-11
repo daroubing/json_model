@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:args/args.dart';
 import 'package:path/path.dart' as path;
+
 import 'build_runner.dart' as br;
 
 const tpl =
@@ -11,6 +13,7 @@ void run(List<String> args) {
   String src;
   String dist;
   String tag;
+  bool noAutoImport;
   var parser = new ArgParser();
   parser.addOption('src',
       defaultsTo: './jsons',
@@ -22,14 +25,17 @@ void run(List<String> args) {
       help: "Specify the dist directory.");
   parser.addOption('tag',
       defaultsTo: '\$', callback: (v) => tag = v, help: "Specify the tag ");
+  parser.addFlag("noAutoImport",defaultsTo: false,
+      callback: (v)=>noAutoImport = v,
+      help: r"设置为true,则对 $[]View 加入import 'View.dart'");
   parser.parse(args);
-  if (walk(src, dist, tag)) {
+  if (walk(src, dist, tag, noAutoImport)) {
     br.run(['build', '--delete-conflicting-outputs']);
   }
 }
 
 //遍历JSON目录生成模板
-bool walk(String srcDir, String distDir, String tag) {
+bool walk(String srcDir, String distDir, String tag, bool noAutoImport) {
   if (srcDir.endsWith("/")) srcDir = srcDir.substring(0, srcDir.length - 1);
   if (distDir.endsWith("/")) distDir = distDir.substring(0, distDir.length - 1);
   var src = Directory(srcDir);
@@ -62,8 +68,7 @@ bool walk(String srcDir, String distDir, String tag) {
           if (key.startsWith("@import")) {
             set.add("import '$v'");
             return;
-          }
-          else if(key.startsWith(RegExp("@class", caseSensitive: false))){
+          } else if (key.startsWith(RegExp("@class", caseSensitive: false))) {
             classNameFromJson = v;
             return;
           }
@@ -72,7 +77,7 @@ bool walk(String srcDir, String distDir, String tag) {
           attrs.write(v);
           attrs.writeln(";");
         } else {
-          attrs.write(getType(v, set, name, tag));
+          attrs.write(getType(v, set, name, tag, noAutoImport));
           attrs.write(" ");
           attrs.write(key);
           attrs.writeln(";");
@@ -82,7 +87,7 @@ bool walk(String srcDir, String distDir, String tag) {
 
       //从配置或文件名中生成类名
       String className = classNameFromJson;
-      if(className == null || className.isEmpty) {
+      if (className == null || className.isEmpty) {
         className = name[0].toUpperCase() + name.substring(1);
       }
       var dist = format(tpl, [
@@ -125,7 +130,7 @@ bool isBuiltInType(String type) {
 }
 
 //将JSON类型转为对应的dart类型
-String getType(v, Set<String> set, String current, tag) {
+String getType(v, Set<String> set, String current, tag, bool noAutoImpot) {
   current = current.toLowerCase();
   if (v is bool) {
     return "bool";
@@ -139,13 +144,13 @@ String getType(v, Set<String> set, String current, tag) {
     //处理特殊标志
     if (v.startsWith("$tag[]")) {
       var type = changeFirstChar(v.substring(3), false);
-      if (type.toLowerCase() != current && !isBuiltInType(type)) {
+      if ( !noAutoImpot && type.toLowerCase() != current && !isBuiltInType(type)) {
         set.add('import "$type.dart"');
       }
       return "List<${changeFirstChar(type)}>";
     } else if (v.startsWith(tag)) {
       var fileName = changeFirstChar(v.substring(1), false);
-      if (fileName.toLowerCase() != current) {
+      if ( !noAutoImpot && fileName.toLowerCase() != current) {
         set.add('import "$fileName.dart"');
       }
       return changeFirstChar(fileName);
