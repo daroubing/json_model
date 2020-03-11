@@ -217,7 +217,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "0.0.6"
+    version: "0.0.7"
   json_serializable:
     dependency: "direct dev"
     description:
