@@ -25,8 +25,9 @@ void run(List<String> args) {
       help: "Specify the dist directory.");
   parser.addOption('tag',
       defaultsTo: '\$', callback: (v) => tag = v, help: "Specify the tag ");
-  parser.addFlag("noAutoImport",defaultsTo: false,
-      callback: (v)=>noAutoImport = v,
+  parser.addFlag("noAutoImport",
+      defaultsTo: false,
+      callback: (v) => noAutoImport = v,
       help: r"设置为true,则对 $[]View 加入import 'View.dart'");
   parser.parse(args);
   if (walk(src, dist, tag, noAutoImport)) {
@@ -60,7 +61,9 @@ bool walk(String srcDir, String distDir, String tag, bool noAutoImport) {
       var map = json.decode(file.readAsStringSync());
       //为了避免重复导入相同的包，我们用Set来保存生成的import语句。
       var set = new Set<String>();
-      String classNameFromJson;
+
+      //从配置或文件名中生成类名
+      String className = name[0].toUpperCase() + name.substring(1);
       StringBuffer attrs = new StringBuffer();
       (map as Map<String, dynamic>).forEach((key, v) {
         if (key.startsWith("_")) return;
@@ -69,7 +72,7 @@ bool walk(String srcDir, String distDir, String tag, bool noAutoImport) {
             set.add("import '$v'");
             return;
           } else if (key.startsWith(RegExp("@class", caseSensitive: false))) {
-            classNameFromJson = v;
+            className = v;
             return;
           }
           attrs.write(key);
@@ -77,19 +80,14 @@ bool walk(String srcDir, String distDir, String tag, bool noAutoImport) {
           attrs.write(v);
           attrs.writeln(";");
         } else {
-          attrs.write(getType(v, set, name, tag, noAutoImport));
+          attrs.write(getType(key, set, className, noAutoImport));
           attrs.write(" ");
-          attrs.write(key);
+          attrs.write(v);
           attrs.writeln(";");
         }
         attrs.write("    ");
       });
 
-      //从配置或文件名中生成类名
-      String className = classNameFromJson;
-      if (className == null || className.isEmpty) {
-        className = name[0].toUpperCase() + name.substring(1);
-      }
       var dist = format(tpl, [
         name,
         className,
@@ -130,36 +128,47 @@ bool isBuiltInType(String type) {
 }
 
 //将JSON类型转为对应的dart类型
-String getType(v, Set<String> set, String current, tag, bool noAutoImpot) {
+String getType(String key, Set<String> set, String current, bool noAutoImport) {
+  if (noAutoImport) {
+    return key;
+  }
+
   current = current.toLowerCase();
-  if (v is bool) {
-    return "bool";
-  } else if (v is num) {
-    return "num";
-  } else if (v is Map) {
-    return "Map<String,dynamic>";
-  } else if (v is List) {
-    return "List";
-  } else if (v is String) {
-    //处理特殊标志
-    if (v.startsWith("$tag[]")) {
-      var type = changeFirstChar(v.substring(3), false);
-      if ( !noAutoImpot && type.toLowerCase() != current && !isBuiltInType(type)) {
-        set.add('import "$type.dart"');
+
+  {
+    var listReg = RegExp(r"^List<\s*(.*)\s*>$");
+    var m = listReg.firstMatch(key);
+    if (m != null && m.groupCount == 1) {
+      var type = m.group(1);
+      if (type.toLowerCase() != current) {
+        _addImport(type, set);
       }
-      return "List<${changeFirstChar(type)}>";
-    } else if (v.startsWith(tag)) {
-      var fileName = changeFirstChar(v.substring(1), false);
-      if ( !noAutoImpot && fileName.toLowerCase() != current) {
-        set.add('import "$fileName.dart"');
-      }
-      return changeFirstChar(fileName);
-    } else if (v.startsWith("@")) {
-      return v;
+      return key;
     }
-    return "String";
-  } else {
-    return "String";
+  }
+
+  {
+    var mapReg = RegExp(r"Map<\s*(.*)\s*,\s*(.*)\s*>");
+    var m = mapReg.firstMatch(key);
+    if (m != null && m.groupCount == 2) {
+      for (var type in [m.group(1), m.group(2)]) {
+        if (type.toLowerCase() != current) {
+          _addImport(type, set);
+        }
+      }
+      return key;
+    }
+  }
+
+  if (key.toLowerCase() != current) {
+    _addImport(key, set);
+  }
+  return key;
+}
+
+void _addImport(String key, Set<String> set) {
+  if (!isBuiltInType(key.toLowerCase())) {
+    set.add('import "$key.dart"');
   }
 }
 
