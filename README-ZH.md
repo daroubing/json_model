@@ -27,11 +27,11 @@ Json文件: `jsons/user.json`
 
 ```javascript
 {
-  "name":"wendux",
-  "father":"$user", //可以通过"$"符号引用其它model类
-  "friends":"$[]user", // 可以通过"$[]"来引用数组
-  "keywords":"$[]String", // 同上
-  "age":20
+  "String":"name"
+  "User":"father", //可以通过"$"符号引用其它model类
+  "List<User>":"friends", // 可以通过"$[]"来引用数组
+  "List<String>":"keywords", // 同上
+  "int":"age"
 }
 ```
 
@@ -67,8 +67,8 @@ class User {
 {
   "@JsonKey(ignore: true) dynamic":"md",
   "@JsonKey(name: '+1') int": "loved", //将“+1”映射为“loved”
-  "name":"wendux",
-  "age":20
+  "String":"name",
+  "int":"age"
 }
 ```
 
@@ -111,8 +111,8 @@ void main() {
 {
   "@import":"test_dir/profile.dart",
   "@JsonKey(ignore: true) Profile":"profile",
-  "name":"wendux",
-  "age":20
+  "String":"name",
+  "int":"age"
 }
 ```
 
@@ -145,8 +145,8 @@ class User {
 ```json
 {
   "@import":"test_dir/profile.dart",
-  "@import1":"test_dir/profile1.dart",
-	"@import2":"test_dir/profile2.dart",
+  "@import":"test_dir/profile1.dart",
+	"@import":"test_dir/profile2.dart",
 }
 ```
 
