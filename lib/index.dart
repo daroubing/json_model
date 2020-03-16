@@ -78,6 +78,11 @@ bool walk(String srcDir, String distDir, String tag, bool noAutoImport) {
           } else if (key.startsWith(RegExp("@class", caseSensitive: false))) {
             className = v;
             return;
+          } else if(key.startsWith(RegExp("@note", caseSensitive: false))){
+            attrs.write('//$v');
+            attrs.writeln();
+            attrs.write('    ');
+            return;
           }
           attrs.write(key);
           attrs.write(" ");
