@@ -166,6 +166,28 @@ class User {
 
 
 
+### @note
+
+加入注释
+
+```Json
+{
+  "@note": "用户名",
+  "String", "name"
+}
+```
+
+
+
+```dart
+//用户名
+String name;
+```
+
+
+
+
+
 
 
 ##  命令参数
