@@ -186,6 +186,38 @@ String name;
 
 
 
+## 默认参数
+
+```json
+{  "@JsonKey(name: 'qq_number', defaultValue: '1092093463') String": "qqNumber",
+  "@JsonKey(name: 'qq_number1', defaultValue: 1092093463) int": "qqNumber1"
+}
+
+```
+
+
+
+生成代码
+
+```
+@JsonKey(name: 'qq_number', defaultValue: '1092093463') String qqNumber;
+@JsonKey(name: 'qq_number1', defaultValue: 1092093463) int qqNumber1;
+
+QQGroupCube _$QQGroupCubeFromJson(Map<String, dynamic> json) {
+  return QQGroupCube()
+    ..qqNumber = json['qq_number'] as String ?? '1092093463'
+    ..qqNumber1 = json['qq_number1'] as int ?? 1092093463;
+}
+
+Map<String, dynamic> _$QQGroupCubeToJson(QQGroupCube instance) =>
+    <String, dynamic>{
+      'qq_number': instance.qqNumber,
+      'qq_number1': instance.qqNumber1,
+    };
+```
+
+
+
 
 
 
