@@ -78,7 +78,7 @@ bool walk(String srcDir, String distDir, String tag ) {
       var p=f.path.replaceFirst(srcDir, distDir).replaceFirst(".json", ".dart");
       File(p)..createSync(recursive: true)..writeAsStringSync(dist);
       var relative=p.replaceFirst(distDir+path.separator, "");
-      indexFile+="export '$relative' ; \n";
+      indexFile+="export '$relative'; \n";
     }
   });
   if(indexFile.isNotEmpty) {

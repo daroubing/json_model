@@ -118,7 +118,7 @@ bool walk(String srcDir, String distDir, String tag, bool noAutoImport) {
       var relative = p.replaceFirst(distDir + path.separator, "");
       relative =
           relative.replaceAll(path.windows.separator, path.posix.separator);
-      indexFile += "export '$relative' ; \n";
+      indexFile += "export '$relative'; \n";
     }
   });
   if (indexFile.isNotEmpty) {
