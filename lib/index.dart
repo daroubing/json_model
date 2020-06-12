@@ -41,7 +41,7 @@ bool walk(String srcDir, String distDir, String tag, bool noAutoImport) {
   if (distDir.endsWith("/")) distDir = distDir.substring(0, distDir.length - 1);
   var src = Directory(srcDir);
   var list = src.listSync(recursive: true);
-  String indexFile = "";
+  List<String> indexFile = List();
   if (list.isEmpty) return false;
   if (!Directory(distDir).existsSync()) {
     Directory(distDir).createSync(recursive: true);
@@ -106,8 +106,11 @@ bool walk(String srcDir, String distDir, String tag, bool noAutoImport) {
         className,
         className
       ]);
-      var _import = set.join(";\r\n");
-      _import += _import.isEmpty ? "" : ";";
+      var de = set.toList(growable:false);
+      de.sort();
+      var _import = de.join(";\n");
+      _import = _import.isEmpty? "": "\n$_import";
+      _import += _import.isEmpty ? "" : ";\n\n";
       dist = dist.replaceFirst("%t", _import);
       //将生成的模板输出
       var p =
@@ -118,11 +121,13 @@ bool walk(String srcDir, String distDir, String tag, bool noAutoImport) {
       var relative = p.replaceFirst(distDir + path.separator, "");
       relative =
           relative.replaceAll(path.windows.separator, path.posix.separator);
-      indexFile += "export '$relative'; \n";
+      indexFile.add("export '$relative';");
     }
   });
-  if (indexFile.isNotEmpty) {
-    File(path.join(distDir, "index.dart")).writeAsStringSync(indexFile);
+  if(indexFile.isNotEmpty){
+    indexFile.sort();
+    var ret = indexFile.join('\n');
+    File(path.join(distDir, 'index.dart')).writeAsStringSync(ret);
   }
   return indexFile.isNotEmpty;
 }
